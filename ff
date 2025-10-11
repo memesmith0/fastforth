@@ -1,6 +1,7 @@
 #!/bin/env sh
 #license: john morris beck - gpl2 - https://gnu.org
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
+fastforth_core="$( cat << 'EOT'
 root_fastforth_folder="/dev/shm/fastforth" 
 mkdir "$root_fastforth_folder" 2> /dev/null;
 fastforth_process_id="process_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
@@ -15,11 +16,10 @@ stack_head="0";
 push(){  printf "%s" "$1" > "$stack/$stack_head"; stack_head="$(( stack_head + 1 ))";};
 peek(){ peek_head=$(( stack_head - $1)); cat "$stack/$peek_head" || exit;};
 drop(){ stack_head=$(( stack_head - 1));rm -f "$stack/$stack_head" || exit;};
-
 memory="$our_fastforth_folder/memory";
 mkdir "$memory" 2>/dev/null;
-fastforth_write(){ peek 2 > "$memory/$( peek 1)";drop;drop;};
-fastforth_read(){ read_location="$memory/$( peek 1 )"; drop; push "$(cat "$read_location")";};
+fwrite(){ peek 2 > "$memory/$( peek 1)";drop;drop;};
+fread(){ read_location="$memory/$( peek 1 )"; drop; push "$(cat "$read_location")";};
 shell_files="$our_fastforth_folder/shell";
 mkdir "$shell_files" 2>/dev/null;
 shell_files_head="0";
@@ -33,19 +33,15 @@ captured_shell_command(){
     drop;
     push "$this_shell_id.stdout";
     push "$this_shell_id.stderr";
-    sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";
-
-};
+    sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";};
 read_shell_memory(){ foo="$( cat "$shell_files/$( peek 1 )")"; drop; push "$foo"; }
 async_captured_shell_command(){ (captured_shell_command)&};
-
-string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
 space(){ push " ";};
 newline(){ push "
 ";};
 concatenate(){ "$memory/$( peek 1 )" >> "$memory/$( peek 2 )"; drop; drop;};
-
-fastforth_print(){ cat "$memory/$( peek 1 )"; drop;}
-
-
-
+print(){ cat "$memory/$( peek 1 )"; drop;}
+string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
+EOT
+)"
+eval fastforth_core;
