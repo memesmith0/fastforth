@@ -1,6 +1,9 @@
 #!/bin/sh
 #license: john morris beck - gpl2 - https://gnu.org
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
+
+
+#create unique folder in ram to store data
 fastforth_folder="/dev/shm/fastforth" 
 mkdir "$fastforth_folder" 2> /dev/null;
 fastforth_process_id="process_$$_$( dd if=/dev/random bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
@@ -10,4 +13,18 @@ mkdir "$our_fastforth_folder" 2>/dev/null;
 ls /dev/shm/fastforth
 fastforth_cleanup(){ rm -rf "$our_fastforth_folder";};
 trap "fastforth_cleanup" EXIT HUP
-ls /dev/shm/fastforth
+ls "$fastforth_folder"
+
+#create_stack
+stack="$our_fastforth_folder/stack";
+mkdir "$our_fastforth_folder" 2>/dev/null;
+stack_head="0";
+
+push(){ stack_head=$(( "$stack_head" + 1)); cat > "$stack_head";};
+pop(){ stack_head=$(( cat "$stack_head" || exit; "$stack_head" - 1)); };
+
+
+
+    
+	
+
