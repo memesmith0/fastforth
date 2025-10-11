@@ -29,28 +29,29 @@ fastforth_read(){ read_location="$memory/$( peek 1 )"; drop; push "$(cat "$read_
 
 #work with the shell
 shell_files="$our_fastforth_folder/shell";
+mkdir "$shell_files" 2>/dev/null;
 shell_files_head="0";
-shell_stdout_file="$shell_files.stdout_";
-shell_stderr_file="$shell_files.stderr_";
-ineractive_shell_command(){ eval "$(peek 1)";drop;};
+interactive_shell_command(){ eval "$(peek 1)";drop;};
 captured_shell_command(){
-    local this_shell_id=shell_files_head;
+    this_shell_id="$shell_files_head";
     shell_files_head=$((shell_files_head + 1));
-    local shell_stdout_file="$shell_files.$this_shell_id.stdout";
-    local shell_stderr_file="$shell_files.$this_shell_id.stderr";
-    local shell_command="$(peek 1)";
+    shell_stdout_file="$shell_files.$this_shell_id.stdout";
+    shell_stderr_file="$shell_files.$this_shell_id.stderr";
+    shell_command="$(peek 1)";
     drop;
-    push "$shell_stderr_file";
     push "$shell_stdout_file";
+    push "$shell_stderr_file";
     sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";
 
 };
+
 async_captured_shell_command(){ (captured_shell_command)&};
 
 #add data to stack
 string(){ push "$( printf "$1" | xxd -r -p)";};
 space(){ push " ";};
-newline(){ push "$( printf '\n')";};
+newline(){ push "
+";};
 concat_file="$our_fastforth_folder.concat_file";
 concatenate(){ "$( peek 1 )" >> "$( peek 2 )"; drop; drop;};
 
