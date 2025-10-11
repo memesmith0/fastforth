@@ -44,4 +44,4 @@ print(){ cat "$memory/$( peek 1 )"; drop;}
 string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
 EOT
 )"
-eval fastforth_core;
+eval "$fastforth_core";
