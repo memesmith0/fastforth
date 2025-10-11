@@ -10,10 +10,8 @@ fastforth_process_id="process_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null
 our_fastforth_folder="$root_fastforth_Folder/$fastforth_process_id"
 if [ -d "$our_fastforth_folder" ]; then exit;fi;
 mkdir "$our_fastforth_folder" 2>/dev/null;
-ls /dev/shm/fastforth
 fastforth_cleanup(){ rm -rf "$our_fastforth_folder";};
 trap "fastforth_cleanup" EXIT HUP
-ls "$root_fastforth_Folder"
 
 #create_stack
 stack="$our_fastforth_folder/stack";
@@ -35,7 +33,7 @@ shell_files_head="0";
 shell_stdout_file="$shell_files.stdout_";
 shell_stderr_file="$shell_files.stderr_";
 ineractive_shell_command(){ eval "$(peek 0)";drop;};
-captured_shell_command()(){
+captured_shell_command(){
     local this_shell_id=shell_files_head;
     shell_files_head=$(("$shell_files_head" + 1));
     local shell_stdout_file="$shell_files.$this_shell_id.stdout";
@@ -47,7 +45,7 @@ captured_shell_command()(){
     sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";
 
 };
-async_captured_shell_command()(){(captured_shell_command)&;};
+async_captured_shell_command(){ (captured_shell_command)&};
 
 #add data to stack
 string(){ printf "$1" | xxd -r -p | push;};
