@@ -1,7 +1,7 @@
 #!/bin/env sh
 #license: john morris beck - gpl2 - https://gnu.org
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
-fastforth_core="$( cat << 'EOT'
+fastforth_core="$( cat << 'fastforth_core_end'
 root_fastforth_folder="/dev/shm/fastforth" 
 mkdir "$root_fastforth_folder" 2> /dev/null;
 fastforth_process_id="process_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
@@ -40,8 +40,36 @@ space(){ push " ";};
 newline(){ push "
 ";};
 concatenate(){ "$memory/$( peek 1 )" >> "$memory/$( peek 2 )"; drop; drop;};
-print(){ cat "$memory/$( peek 1 )"; drop;}
+print(){ cat "$memory/$( peek 1 )"; drop;};
 string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
-EOT
-)"
-eval "$fastforth_core";
+fastforth_header="$( cat << 'fastforth_header_end'
+     #!/bin/env sh
+    #license: john morris beck - gpl2 - https://gnu.org
+    #https://github.com/memesmith0 https://thefastscrolls.neocities.org
+    fastforth_core="$( cat << 'fastforth_core_end'
+fastforth_header_end
+)";
+fastforth_footer="$( cat << 'fastforth_footer_end'
+fastforth_core_end
+)"; if [ "$fastforth_core_evaluated" = "$0" ]; then fastforth_core_evaluated="yes";eval "$fastforth_core";fi;
+fastforth_source_evaluated=1;
+eval "$fastforth_source";
+fastforth_footer_end
+)";
+fastforth_compiler(){
+    fastforth_compiler_dest="$( peek 1)"; drop;
+    fastforth_compiler_source="$( peek 1)"; drop;
+    (
+    fastforth_compiler_data="$our_fastforth_folder/memory/$fastforth_compiler_source_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
+    awk 'BEGIN {ORS=""} {print}' "$fastforth_compiler_source" > "$our_fastforth_folder/compiler_data_a"; drop;
+    awk '{ for (i=1; i<=NF; i++) { if ($(i-1) == "string") printf "%s ", sprintf("%x", $i); else printf "%s ", $i } print "" }'  "$fastforth_compiler_data.a" > "$fastforth_compiler_data.b";
+    awk '{output = "";for (i = 1; i <= NF; ++i) {if (i > 1) {if ($(i-1) == "string") {output = output " " $i;} else {output = output ":" $i;}} else {output = $i;}}print output;}' "$fastforth_compiller_data.b" > "$fastforth_compiler_data.a";
+    printf "%s" "$fastforth_header" > "$fastforth_compiler_dest";
+    printf "%s" "$fastforth_core" >> "$fastforth_compiler_dest";
+    printf "%s" "$fastforth_footer" >> "$fastforth_compier_dest";
+    cat "$fastforth_compiler_data.b" >> "$fastforth_compiler_dest";
+    rm "$fastforth_compiler_data.a" "$fastforth_compiler_data.b";
+    )
+    };
+fastforth_core_end
+)"; if [ "$fastforth_core_evaluated" = "yes" ]; then fastforth_core_evaluated="yes";eval "$fastforth_core";fi;
