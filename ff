@@ -50,7 +50,6 @@ fastforth_header="$( cat << 'fastforth_header_end'
 fastforth_header_end
 )";
 fastforth_footer="$( cat << 'fastforth_footer_end'
-fastforth_core_end
 )"; if [ "$fastforth_core_evaluated" = "$0" ]; then fastforth_core_evaluated="yes";eval "$fastforth_core";fi;
 fastforth_source_evaluated=1;
 eval "$fastforth_source";
@@ -66,6 +65,7 @@ fastforth_compiler(){
     awk '{output = "";for (i = 1; i <= NF; ++i) {if (i > 1) {if ($(i-1) == "string") {output = output " " $i;} else {output = output ":" $i;}} else {output = $i;}}print output;}' "$fastforth_compiller_data.b" > "$fastforth_compiler_data.a";
     printf "%s" "$fastforth_header" > "$fastforth_compiler_dest";
     printf "%s" "$fastforth_core" >> "$fastforth_compiler_dest";
+    printf "%s" "fastforth_core_end" >> "$fastforth_compiler_dest";
     printf "%s" "$fastforth_footer" >> "$fastforth_compier_dest";
     cat "$fastforth_compiler_data.b" >> "$fastforth_compiler_dest";
     rm "$fastforth_compiler_data.a" "$fastforth_compiler_data.b";
