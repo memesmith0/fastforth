@@ -1,4 +1,4 @@
-a#!/bin/env sh
+#!/bin/env sh
 #license: john morris beck - gpl2 - https://gnu.org
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
 
@@ -35,8 +35,8 @@ interactive_shell_command(){ eval "$(peek 1)";drop;};
 captured_shell_command(){
     this_shell_id="$shell_files_head";
     shell_files_head=$((shell_files_head + 1));
-    shell_stdout_file="$shell_files.$this_shell_id.stdout";
-    shell_stderr_file="$shell_files.$this_shell_id.stderr";
+    shell_stdout_file="$shell_files/$this_shell_id.stdout";
+    shell_stderr_file="$shell_files/$this_shell_id.stderr";
     shell_command="$(peek 1)";
     drop;
     push "$shell_stdout_file";
