@@ -1,7 +1,11 @@
 #!/bin/env sh
-#license: john morris beck - gpl2 - https://gnu.org
+#fastforth - john morris beck - license: gpl2 - https://gnu.org
+#the code that comes after the the end of the fast forth core is
+#a different piece of code writen by a potentially different author
+#they will place their license there
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
-fastforth_core="$( cat << 'fastforth_core_end'
+fastforth(){
+    fastforth_core="$( cat << 'fastforth_core_end'
 root_fastforth_folder="/dev/shm/fastforth" 
 mkdir "$root_fastforth_folder" 2> /dev/null;
 fastforth_process_id="process_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
@@ -43,10 +47,13 @@ concatenate(){ "$memory/$( peek 1 )" >> "$memory/$( peek 2 )"; drop; drop;};
 print(){ cat "$memory/$( peek 1 )"; drop;};
 string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
 fastforth_header="$( cat << 'fastforth_header_end'
-     #!/bin/env sh
-    #license: john morris beck - gpl2 - https://gnu.org
-    #https://github.com/memesmith0 https://thefastscrolls.neocities.org
-    fastforth_core="$( cat << 'fastforth_core_end'
+#!/bin/env sh
+#fastforth core - john morris beck - license: gpl2 - https://gnu.org
+#https://github.com/memesmith0 https://thefastscrolls.neocities.org
+#the code that comes after the the end of the fast forth core is
+#a different piece of code writen by a potentially different author
+#they will place their license there
+fastforth_core="$( cat << 'fastforth_core_end'
 fastforth_header_end
 )";
 fastforth_footer="$( cat << 'fastforth_footer_end'
@@ -72,5 +79,6 @@ fastforth_compiler(){
     )
     };
 fastforth_core_end
-)";  if [ "$fastforth_core_evaluated" != "yes" ]; then print "hello"; fastforth_core_evaluated="yes";eval "$fastforth_core";fi;
+)";  if [ "$fastforth_core_evaluated" != "yes" ]; then fastforth_core_evaluated="yes";eval "$fastforth_core";fi;
+};
 push "hellogoodbye"; push "foo"; fwrite; push foo; print;
