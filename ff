@@ -52,7 +52,9 @@ string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
 space(){ push " ";};
 newline(){ push "
 ";};
-concatenate(){ "$( peek 1 )" >> "$( peek 2 )"; drop; drop;};
+concatenate(){ "$memory/$( peek 1 )" >> "$memory/$( peek 2 )"; drop; drop;};
+
+fastforth_print(){ cat "$memory/$( peek 1 )"; drop;}
 
 
 
