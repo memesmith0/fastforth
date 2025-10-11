@@ -1,0 +1,5 @@
+#!/bin/sh
+#license: john morris beck - gpl2 - https://gnu.org
+#https://github.com/memesmith0 https://thefastscrolls.neocities.org
+fastforth_folder="/dev/shm/fastforth" 
+mkdir "$fastforth_folder" 2> /dev/null;
