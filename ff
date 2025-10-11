@@ -1,4 +1,4 @@
-#!/bin/env sh
+a#!/bin/env sh
 #license: john morris beck - gpl2 - https://gnu.org
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
 
@@ -17,7 +17,7 @@ trap "fastforth_cleanup" EXIT HUP
 stack="$our_fastforth_folder/stack";
 mkdir "$stack" 2>/dev/null;
 stack_head="0";
-push(){  printf "$1" > "$stack/$stack_head"; stack_head="$(( stack_head + 1 ))";};
+push(){  printf "%s" "$1" > "$stack/$stack_head"; stack_head="$(( stack_head + 1 ))";};
 peek(){ peek_head=$(( stack_head - $1)); cat "$stack/$peek_head" || exit;};
 drop(){ stack_head=$(( stack_head - 1));rm -f "$stack/$stack_head" || exit;};
 
@@ -48,11 +48,10 @@ captured_shell_command(){
 async_captured_shell_command(){ (captured_shell_command)&};
 
 #add data to stack
-string(){ push "$( printf "$1" | xxd -r -p)";};
+string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
 space(){ push " ";};
 newline(){ push "
 ";};
-concat_file="$our_fastforth_folder.concat_file";
 concatenate(){ "$( peek 1 )" >> "$( peek 2 )"; drop; drop;};
 
 
