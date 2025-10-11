@@ -3,3 +3,8 @@
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
 fastforth_folder="/dev/shm/fastforth" 
 mkdir "$fastforth_folder" 2> /dev/null;
+fastforth_process_id="process_$$_$( dd if=/dev/random bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
+our_fastforth_folder="$fastforth_folder/$fastforth_process_id"
+if [ -d "$our_fastforth_folder" ]; then exit;fi;
+mkdir "$our_fastforth_folder" 2>/dev/null;
+ls /dev/shm/fastforth
