@@ -72,4 +72,5 @@ fastforth_compiler(){
     )
     };
 fastforth_core_end
-)"; if [ "$fastforth_core_evaluated" = "yes" ]; then fastforth_core_evaluated="yes";eval "$fastforth_core";fi;
+)";  if [ "$fastforth_core_evaluated" != "yes" ]; then print "hello"; fastforth_core_evaluated="yes";eval "$fastforth_core";fi;
+push "hellogoodbye"; push "foo"; fwrite; push foo; print;
