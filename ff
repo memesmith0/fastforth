@@ -40,8 +40,8 @@ captured_shell_command(){
     local shell_stderr_file="$shell_files.$this_shell_id.stderr";
     local shell_command="$(peek 0)";
     drop;
-    printf "%s" "$shell_stderr_file" | push
-    printf "%s" "$shell_stdout_file" | push
+    printf "%s" "$shell_stderr_file" | push;
+    printf "%s" "$shell_stdout_file" | push;
     sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";
 
 };
