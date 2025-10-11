@@ -8,3 +8,6 @@ our_fastforth_folder="$fastforth_folder/$fastforth_process_id"
 if [ -d "$our_fastforth_folder" ]; then exit;fi;
 mkdir "$our_fastforth_folder" 2>/dev/null;
 ls /dev/shm/fastforth
+fastforth_cleanup(){ rm -rf "$our_fastforth_folder";};
+trap "fastforth_cleanup" EXIT HUP
+ls /dev/shm/fastforth
