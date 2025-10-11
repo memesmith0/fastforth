@@ -32,6 +32,7 @@ shell_files="$our_fastforth_folder/shell";
 mkdir "$shell_files" 2>/dev/null;
 shell_files_head="0";
 interactive_shell_command(){ eval "$(peek 1)";drop;};
+
 captured_shell_command(){
     this_shell_id="$shell_files_head";
     shell_files_head=$((shell_files_head + 1));
@@ -39,11 +40,16 @@ captured_shell_command(){
     shell_stderr_file="$shell_files/$this_shell_id.stderr";
     shell_command="$(peek 1)";
     drop;
-    push "$shell_stdout_file";
-    push "$shell_stderr_file";
+    push "$this_shell_id.stdout";
+    push "$this_shell_id.stderr";
     sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";
 
 };
+
+read_shell_memory(){ foo="$( cat "$shell_files/$( peek 1 )")"; drop; push "$foo"; }
+
+
+
 
 async_captured_shell_command(){ (captured_shell_command)&};
 
