@@ -1,9 +1,6 @@
 #!/bin/env sh
 #license: john morris beck - gpl2 - https://gnu.org
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
-
-
-#create unique folder in ram to store data
 root_fastforth_folder="/dev/shm/fastforth" 
 mkdir "$root_fastforth_folder" 2> /dev/null;
 fastforth_process_id="process_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
@@ -12,8 +9,6 @@ if [ -d "$our_fastforth_folder" ]; then exit;fi;
 mkdir "$our_fastforth_folder" 2>/dev/null;
 fastforth_cleanup(){ rm -rf "$our_fastforth_folder";};
 trap "fastforth_cleanup" EXIT HUP
-
-#create_stack
 stack="$our_fastforth_folder/stack";
 mkdir "$stack" 2>/dev/null;
 stack_head="0";
@@ -21,18 +16,14 @@ push(){  printf "%s" "$1" > "$stack/$stack_head"; stack_head="$(( stack_head + 1
 peek(){ peek_head=$(( stack_head - $1)); cat "$stack/$peek_head" || exit;};
 drop(){ stack_head=$(( stack_head - 1));rm -f "$stack/$stack_head" || exit;};
 
-#create_memory
 memory="$our_fastforth_folder/memory";
 mkdir "$memory" 2>/dev/null;
 fastforth_write(){ peek 2 > "$memory/$( peek 1)";drop;drop;};
 fastforth_read(){ read_location="$memory/$( peek 1 )"; drop; push "$(cat "$read_location")";};
-
-#work with the shell
 shell_files="$our_fastforth_folder/shell";
 mkdir "$shell_files" 2>/dev/null;
 shell_files_head="0";
 interactive_shell_command(){ eval "$(peek 1)";drop;};
-
 captured_shell_command(){
     this_shell_id="$shell_files_head";
     shell_files_head=$((shell_files_head + 1));
@@ -45,15 +36,9 @@ captured_shell_command(){
     sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";
 
 };
-
 read_shell_memory(){ foo="$( cat "$shell_files/$( peek 1 )")"; drop; push "$foo"; }
-
-
-
-
 async_captured_shell_command(){ (captured_shell_command)&};
 
-#add data to stack
 string(){ push "$( printf "%s" "$1" | xxd -r -p)";};
 space(){ push " ";};
 newline(){ push "
