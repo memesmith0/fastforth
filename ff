@@ -4,9 +4,9 @@
 
 
 #create unique folder in ram to store data
-fastforth_folder="/dev/shm/fastforth" 
+root_fastforth_folder="/dev/shm/fastforth" 
 mkdir "$root_fastforth_folder" 2> /dev/null;
-fastforth_process_id="process_$$_$( dd if=/dev/random bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
+fastforth_process_id="process_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";
 our_fastforth_folder="$root_fastforth_Folder/$fastforth_process_id"
 if [ -d "$our_fastforth_folder" ]; then exit;fi;
 mkdir "$our_fastforth_folder" 2>/dev/null;
@@ -19,32 +19,35 @@ ls "$root_fastforth_Folder"
 stack="$our_fastforth_folder/stack";
 mkdir "$stack" 2>/dev/null;
 stack_head="0";
-push(){ stack_head=$(( "$stack_head" + 1)); cat > "$stack/$stack_head";};
+push(){  cat > "$stack/$stack_head"; stack_head=$(( "$stack_head" + 1));};
 peek(){ peek_head=$(( "$stack_head" - "$1")); cat "$stack/$peek_head" || exit;};
-pop(){ echo "" > "$stack/stack_head" || exit; stack_head=$(("$stack_head" - 1)); };
+drop(){ rm -f "$stack/$stack_head" || exit 1; stack_head=$(("$stack_head" - 1)); };
 
 #create_memory
 memory="$our_fastforth_folder/memory";
 mkdir "$memory" 2>/dev/null;
-fastforth_write(){ peek 1 > "$memory/$( peek 0)";pop;pop;};
-fastforth_read(){ read_location="$memory/$( peek 0 )"; pop; push < "$read_location";};
+fastforth_write(){ peek 1 > "$memory/$( peek 0)";drop;drop;};
+fastforth_read(){ read_location="$memory/$( peek 0 )"; drop; push < "$read_location";};
 
 #work with the shell
 shell_files="$our_fastforth_folder/shell";
 shell_files_head="0";
 shell_stdout_file="$shell_files.stdout_";
 shell_stderr_file="$shell_files.stderr_";
-ineractive_shell_command(){ eval "$(peek 0)";pop;};
+ineractive_shell_command(){ eval "$(peek 0)";drop;};
 captured_shell_command()(){
-    this_shell_id=shell_files_head;
+    local this_shell_id=shell_files_head;
     shell_files_head=$(("$shell_files_head" + 1));
-    shell_command="$(peek 0)";
-    pop;
-    printf "$shell_stdout_file$this_shell_id" | push;
-    printf "$shell_stderr_file$this_shell_id" | push;
-    (sh -c "$shell_command" > "$shell_stdout_file$this_shell_id" 2> "$shell_stderr_file$this_shell_id";)
+    local shell_stdout_file="$shell_files.$this_shell_id.stdout";
+    local shell_stderr_file="$shell_files.$this_shell_id.stderr";
+    local shell_command="$(peek 0)";
+    drop;
+    printf "%s" "$shell_stderr_file" | push
+    printf "%s" "$shell_stdout_file" | push
+    sh -c "$shell_command" > "$shell_stdout_file" 2> "$shell_stderr_file";
+
 };
-async_captured_shell_command()(){(captured_shell_command)&};
+async_captured_shell_command()(){(captured_shell_command)&;};
 
 #add data to stack
 string(){ printf "$1" | xxd -r -p | push;};
@@ -52,7 +55,7 @@ space(){ printf " " | push;};
 newline(){ printf "
 " | push;};
 concat_file="$our_fastforth_folder.concat_file";
-concatenate(){ peek 0 > "$concat_file"; pop; peek 0 > "$concat_file"; pop; push < "$concat_file"; echo "" > "$concat_file" };
+concatenate(){ peek 0 > "$concat_file"; drop; peek 0 >> "$concat_file"; drop; push < "$concat_file"; rm -f "$concat_file";};
 
 
 
