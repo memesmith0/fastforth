@@ -29,14 +29,19 @@ fastforth_async_captured_shell_command(){ (captured_fastforth_shell_command)&}; 
 fastforth_space(){ fastforth_push " ";}; readonly -f fastforth_space;
 fastforth_newline(){ fastforth_push "
 ";}; readonly -f fastforth_newline;
+
+
 fastforth_concatenate(){
 fastforth_concatenate_a="$(fastforth_peek)";fastforth_drop;
 fastforth_concatenate_b="$(fastforth_peek)";fastforth_drop;
 fastforth_stack_head="$(( fastforth_stack_head + 1 ))";
-eval "fastforth_memory_fastforth_stack_$fastforth_stack_head=\"\$(fastforth_print \"\$fastforth_concatenate_a\";printf '%s' \"\$fastforth_concatenate_b\";) \"";
+eval "fastforth_memory_$(printf '%s' "fastforth_stack_$fastforth_stack_head" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator=\"\$(fastforth_print \"\$fastforth_concatenate_a\";printf '%s' \"\$fastforth_concatenate_b\";) \"";
 fastforth_concatenate_a="";
 fastforth_concatneate_b="";
 }; readonly -f fastforth_concatenate;
+
+
+
 fastforth_string(){ fastforth_push "$(fastforth_print "$1" | awk '{result=""; for(i=1; i<=length; i+=2) result = result sprintf("%c", strtonum("0x" substr($0, i, 2))); printf "%b", result}')";};readonly -f fastforth_string;
 fastforth_header="$( cat << 'fastforth_header_end'
 #!/bin/env sh
