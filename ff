@@ -13,7 +13,6 @@ fastforth_print(){ printf '%s' "$1" | sed 's/.$//';};
 fastforth_memory_terminator="m";
 fastforth_posix_array_write(){ eval "fastforth_memory_$(printf '%s' "$1" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator=\"\$2 \"";};
 fastforth_posix_array_read(){ eval "printf '%s' \"\$fastforth_memory_$(printf '%s' "$1" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator\"";};
-
 fastforth_stack_head="0";
 fastforth_push(){ fastforth_stack_head="$(( fastforth_stack_head + 1 ))"; fastforth_posix_array_write "fastforth_stack_$fastforth_stack_head" "$1";};
 fastforth_peek(){ fastforth_posix_array_read "fastforth_stack_$fastforth_stack_head";}; 
@@ -33,9 +32,6 @@ fastforth_async_captured_shell_command(){ (captured_fastforth_shell_command)&};
 fastforth_space(){ fastforth_push " ";}; 
 fastforth_newline(){ fastforth_push "
 ";};
-
-
-
 fastforth_concatenate(){
 fastforth_concatenate_a="$(fastforth_peek)";fastforth_drop;
 fastforth_concatenate_b="$(fastforth_peek)";fastforth_drop;
@@ -44,27 +40,8 @@ eval "fastforth_memory_$(printf '%s' "fastforth_stack_$fastforth_stack_head" | o
 fastforth_concatenate_a="";
 fastforth_concatneate_b="";
 };
-
-
-
 fastforth_string(){ fastforth_push "$(printf '%s' "$1" | awk 'function H(h){h=tolower(h);return index("0123456789abcdef",h)-1}{r="";for(i=1;i<=length;i+=2)r=r sprintf("%c",(H(substr($0,i,1))*16)+H(substr($0,i+1,1)));printf "%s",r}')";};
-
-
-
-
-
-
-
-fastforth_define(){ fastforth_define_name="$(fastforth_peek)";fastforth_drop;fastforth_define_definition="$(fastforth_peek)";fastforth_drop;fastforth_posix_array_write "$fastforth_define_name" "$fastforth_define_definition"; eval "fastforth_$(printf '%s' "$fastforth_define_name" )""(){ fastforth_call \"\$( fastforth_posix_array_read $fastforth_define_name)\" ;};" fastforth_define_name="";fastforth_define_definition="";};
-
-
-
-
-
-
-
-
-
+fastforth_define(){ fastforth_define_name="$(fastforth_peek)";fastforth_drop;fastforth_define_definition="$(fastforth_peek)";fastforth_drop;fastforth_posix_array_write "$fastforth_define_name" "$fastforth_define_definition"; eval "fastforth_$(printf '%s' "$fastforth_define_name" | sed 's/.$//')""(){ fastforth_call \"\$( fastforth_posix_array_read \"$fastforth_define_name\")\" ;}"; fastforth_define_name="";fastforth_define_definition="";};
 fastforth_header="$( cat << 'fastforth_header_end'
 #!/bin/env sh
 fastforth(){
@@ -110,4 +87,3 @@ fastforth_push "yes"
 fastforth_compiler
 fastforth_peek > foo
 sh foo
-
