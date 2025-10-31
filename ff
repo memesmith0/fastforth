@@ -49,7 +49,7 @@ fastforth(){
 #the output of compilers bear in mind this compiter is a self printing quine
 #and that it is meant to be embedded into another file
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
-astforth_core="$( cat << 'fastforth_core_end'
+fastforth_core="$( cat << 'fastforth_core_end'
 fastforth_header_end
 )";readonly fastforth_header;
 fastforth_footer="$( cat << 'fastforth_footer_end'
@@ -69,11 +69,10 @@ fastforth_compiler(){
 
     fastforth_compiler_data_a="$(printf "%s" "$fastforth_compiler_data_b" | awk '{ for (i=1; i<=NF; i++) { if ($(i-1) == "string") printf "%s ", sprintf("%x", $i); else printf "%s ", $i } print "" }')"; #turn strings to hex
     fastforth_compiler_data_b="$(printf "%s" "$fastforth_compiler_data_a" | awk '{output = "";for (i = 1; i <= NF; ++i) {if (i > 1) {if ($(i-1) == "string") {output = output " " $i;} else {output = output ";" $i;}} else {output = $i;}}print output;}')";
-    if [ "$fastforth_compiler_fastforth_core_flag" != "yes" ]; then fastforth_push "$fastforth_compiler_data_b"; else 
+    if [ "$fastforth_compiler_fastforth_core_flag" != "yes " ]; then fastforth_push "$fastforth_compiler_data_b"; else 
     fastforth_compiler_data_a="$fastforth_header
 $fastforth_core
-$fastforth_core_end_string
-$fastforth_footer
+$fastforth_core_end_string$fastforth_footer
 $fastforth_compiler_data_b";
 fi;
 fastforth_compiler_data_a="";
@@ -83,4 +82,7 @@ fastforth_core_end
 )"; readonly fastforth_core;
 if [ "$fastforth_core_evaluated" != "yes" ]; then fastforth_core_evaluated="yes"; readonly fastforth_core_evaluated;  eval "$fastforth_core";fi;
 }; fastforth;
-
+fastforth_push "destination"
+fastforth_posix_array_write "source" "$(cat fastforth_test.fastforth)"
+fastforth_push "source"
+fastforth_push "yes"
