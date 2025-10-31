@@ -47,7 +47,7 @@ fastforth_concatneate_b="";
 
 
 
-fastforth_string(){ fastforth_push "$(printf '%s' "$1" | awk 'function H(h){h=tolower(h);return index("0123456789abcdef",h)-1}{r="";for(i=1;i<=length;i+=2)r=r sprintf("%c",(H(substr($0,i,1))*16)+H(substr($0,i+1,1)));printf "%s",r}') ";};
+fastforth_string(){ fastforth_push "$(printf '%s' "$1" | awk 'function H(h){h=tolower(h);return index("0123456789abcdef",h)-1}{r="";for(i=1;i<=length;i+=2)r=r sprintf("%c",(H(substr($0,i,1))*16)+H(substr($0,i+1,1)));printf "%s",r}')";};
 
 
 
