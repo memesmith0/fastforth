@@ -14,9 +14,9 @@ LANG="C"; readonly LANG;
 fastforth_posix_array_write(){ case "$1$2" in [0-9a-zA-Z_]* ) eval "$1=\"\$2\"" : exit ;; esac;}; readonly -f posix_array_write;
 fastforth_posix_array_read(){ case "$1" in [0-9a-zA-Z_]* ) eval "printf '%s' \"\$$1\"" : exit ;; esac;}; readonly -f posix_array_read;
 fastforth_stack_head="0";
-fastforth_push(){  posix_array_write "$fastforth_stack_head" "$1";  fastforth_stack_head="$(( fastforth_stack_head + 1 ))";}; readonly -f fastforth_push;
-fastforth_peek(){ posix_array_read "$(( fastforth_stack_head + 1))";}; readonly -f peek;
-fastforth_drop(){ fastforth_stack_head=$(( fastforth_stack_head - 1)); posix_array_write "$fastforth_stack_head" "";}; readonly -f fastforth_drop;
+fastforth_push(){  fastforth_posix_array_write "$fastforth_stack_head" "$1";  fastforth_stack_head="$(( fastforth_stack_head + 1 ))";}; readonly -f fastforth_push;
+fastforth_peek(){ fastforth_posix_array_read "$(( fastforth_stack_head + 1))";}; readonly -f peek;
+fastforth_drop(){ fastforth_stack_head=$(( fastforth_stack_head - 1)); fastforth_posix_array_write "$fastforth_stack_head" "";}; readonly -f fastforth_drop;
 fastforth_interactive_shell_command(){ eval "$(peek)";drop;}; readonly -f fastforth_interactive_shell_command;
 fastforth_captured_shell_command(){
     fastforth_shell_command="$(peek)";drop;
@@ -30,7 +30,7 @@ fastforth_newline(){ fastforth_push "
 fastforth_concatenate(){
 fastforth_concatenate_a="$(peek)";drop;
 fastforth_concatenate_b="$(peek)";drop;
-fastfroth_posix_array_write "$(peek)" "$fastforth_concatenate_a$fastforth_concatenate_b";drop;}; readonly -f fastforth_concatenate;
+fastfroth_fastforth_posix_array_write "$(peek)" "$fastforth_concatenate_a$fastforth_concatenate_b";drop;}; readonly -f fastforth_concatenate;
 fastforth_print(){ printf "%s" "$(peek)";drop;}; readonly -f fastforth_print;
 fastforth_string(){ decoded_string="$(printf '%s' "$1" | awk '{result=""; for(i=1; i<=length; i+=2) result = result sprintf("%c", strtonum("0x" substr($0, i, 2))); printf "%s", result}')";
 fastforth_push "$decoded_string";
@@ -49,7 +49,7 @@ fastforth_core="$( cat << 'fastforth_core_end'
 fastforth_header_end
 )";readonly fastforth_header;
 fastforth_footer="$( cat << 'fastforth_footer_end'
-)"; readonly_fastforth_core;
+)"; readonly fastforth_core;
 if [ "$fastforth_core_evaluated" != "yes" ]; then fastforth_core_evaluated="yes"; readonly fastforth_core_evaluated;  eval "$fastforth_core";fi;
 }; fastforth;
 fastforth_footer_end
@@ -76,6 +76,7 @@ fastforth_compiler_data_a="";
 fastforth_compiler_data_b="";
     };
 fastforth_core_end
-)"; readonly_fastforth_core;
+)"; readonly fastforth_core;
 if [ "$fastforth_core_evaluated" != "yes" ]; then fastforth_core_evaluated="yes"; readonly fastforth_core_evaluated;  eval "$fastforth_core";fi;
 }; fastforth;
+
