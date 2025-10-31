@@ -12,7 +12,7 @@ fastforth_call(){ eval "$1";};readonly -f fastforth_call;
 LC_COLLATE="C"; readonly LC_COLLATE;
 LANG="C"; readonly LANG;
 fastforth_posix_array_write(){ case "$1$2" in [0-9a-zA-Z_]* ) eval "$1=\"\$2\"" : exit ;; esac;}; readonly -f posix_array_write;
-fastforth_posix_array_read(){ case "$1" nin [0-9a-zA-Z_]* ) eval "printf '%s' \"\$xbx$1\"" : exit ;; esac;}; readonly -f posix_array_read;
+fastforth_posix_array_read(){ case "$1" in [0-9a-zA-Z_]* ) eval "printf '%s' \"\$$1\"" : exit ;; esac;}; readonly -f posix_array_read;
 fastforth_stack_head="0";
 fastforth_push(){  posix_array_write "$fastforth_stack_head" "$1";  fastforth_stack_head="$(( fastforth_stack_head + 1 ))";}; readonly -f fastforth_push;
 fastforth_peek(){ posix_array_read "$(( fastforth_stack_head + 1))";}; readonly -f peek;
@@ -32,7 +32,9 @@ fastforth_concatenate_a="$(peek)";drop;
 fastforth_concatenate_b="$(peek)";drop;
 fastfroth_posix_array_write "$(peek)" "$fastforth_concatenate_a$fastforth_concatenate_b";drop;}; readonly -f fastforth_concatenate;
 fastforth_print(){ printf "%s" "$(peek)";drop;}; readonly -f fastforth_print;
-fastforth_string(){ fastforth_push "$1";};readonly -f fastforth_string;
+fastforth_string(){ decoded_string="$(printf '%s' "$1" | awk '{result=""; for(i=1; i<=length; i+=2) result = result sprintf("%c", strtonum("0x" substr($0, i, 2))); printf "%s", result}')";
+fastforth_push "$decoded_string";
+};readonly -f fastforth_string;
 fastforth_header="$( cat << 'fastforth_header_end'
 #!/bin/env sh
 fastforth(){
@@ -58,11 +60,11 @@ fastforth_compiler(){
     fastforth_compiler_dest="$(peek)";drop;
     fastforth_compiler_source="$(peek)";drop;
     fastforth_compiler_fastforth_core_flag="$(peek)";drop;
-    fastforth_compiler_data="$fastforth_folder_of_this_process/fastforth_memory/$fastforth_compiler_source_$$_$( dd if=/dev/urandom bs=1 count=16 2>/dev/null | od -A n -t x1 | tr -d ' \n' )";readonly fastfoth_footer;
-    fastforth_compiler_data_a="$(printf "%s" "$fastforth_compiler_source" | awk '{for(i=1;i<=NF;i++){modifier=(prev=="string")?"":"fastforth_";printf "%s%s%s",(i==1?"":OFS),$i,modifier;prev=$i}print ""}')";
-    fastforth_compiler_data_b="$(printf "%s" "$fastforth_compiler_data_a" | awk '!/^#/')";
-    fastforth_compiler_data_a="$(printf "%s" "$fastforth_compiler_data_b" | awk '{ for (i=1; i<=NF; i++) { if ($(i-1) == "string") printf "%s ", sprintf("%x", $i); else printf "%s ", $i } print "" }')";
-    fastforth_compiler_data_b="$(printf "%s" "$fastforth_compiler_data_a" | awk '{output = "";for (i = 1; i <= NF; ++i) {if (i > 1) {if ($(i-1) == "string") {output = output " " $i;} else {output = output ":" $i;}} else {output = $i;}}print output;}')";
+    fastforth_compiler_data_a="$(printf "%s" "$fastforth_compiler_source" | awk '!/^#/')"; #remove comments
+    fastforth_compiler_data_b="$(printf "%s" "$fastforth_compiler_data_a" | awk '{for(i=1;i<=NF;i++){modifier=(prev=="string")?"":"fastforth_";printf "%s%s%s",(i==1?"":OFS),$i,modifier;prev=$i}print ""}')"; #name everything fastforth_ except string bullshit
+
+    fastforth_compiler_data_a="$(printf "%s" "$fastforth_compiler_data_b" | awk '{ for (i=1; i<=NF; i++) { if ($(i-1) == "string") printf "%s ", sprintf("%x", $i); else printf "%s ", $i } print "" }')"; #turn strings to hex
+    fastforth_compiler_data_b="$(printf "%s" "$fastforth_compiler_data_a" | awk '{output = "";for (i = 1; i <= NF; ++i) {if (i > 1) {if ($(i-1) == "string") {output = output " " $i;} else {output = output ";" $i;}} else {output = $i;}}print output;}')";
     if [ "$fastfroth_compiler_fastforth_core_flag" != "yes" ]; then fastforth_push "$fastforth_compiler_data_b"; else 
     fastforth_compiler_data_a="$fastforth_header
 $fastforth_core
