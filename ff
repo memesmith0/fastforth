@@ -13,10 +13,10 @@ LC_COLLATE="C"; readonly LC_COLLATE;
 LANG="C"; readonly LANG;
 fastforth_print(){ printf '%s' "$1" | sed 's/.$//';}; readonly -f fastforth_print;
 fastforth_memory_terminator="m";readonly fastforth_memory_terminator;
-fastforth_posix_array_write(){ case "$1" in [0-9a-zA-Z_]* ) eval "fastforth_memory_$1$fastforth_memory_terminator=\"\$2 \"" ;; *) exit ;; esac;}; readonly -f fastforth_posix_array_write;
-fastforth_posix_array_read(){ case "$1" in [0-9a-zA-Z_]* ) eval "fastforth_print \"fastforth_memory_\$$1\$fastforth_memory_terminator\"" ;;  *) exit ;; esac;}; readonly -f fastforth_posix_array_read;
+fastforth_posix_array_write(){ eval "fastforth_memory_$(printf '%s' "$1" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator=\"\$2 \"";}; readonly -f fastforth_posix_array_write;
+fastforth_posix_array_read(){ eval "printf '%s' \"\$fastforth_memory_$(printf '%s' "$1" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator\"";}; readonly -f fastforth_posix_array_read;
 fastforth_stack_head="0";
-fastforth_push(){ fastforth_stack_head="$(( fastforth_stack_head + 1 ))"; fastforth_posix_array_write "fastforth_stack_$fastforth_stack_head" "$1 ";}; readonly -f fastforth_push;
+fastforth_push(){ fastforth_stack_head="$(( fastforth_stack_head + 1 ))"; fastforth_posix_array_write "fastforth_stack_$fastforth_fstack_head" "$1";}; readonly -f fastforth_push;
 fastforth_peek(){ fastforth_posix_array_read "fastforth_stack_$fastforth_stack_head";}; readonly -f fastforth_peek;
 fastforth_drop(){ fastforth_posix_array_write "fastforth_stack_$fastforth_stack_head" "";fastforth_stack_head=$(( fastforth_stack_head - 1));}; readonly -f fastforth_drop;
 fastforth_interactive_shell_command(){ eval "$(fastforth_peek)";fastforth_drop;}; readonly -f fastforth_interactive_shell_command;
@@ -81,7 +81,7 @@ fastforth_core_end
 )"; readonly fastforth_core;
 if [ "$fastforth_core_evaluated" != "yes" ]; then fastforth_core_evaluated="yes"; readonly fastforth_core_evaluated;  eval "$fastforth_core";fi;
 }; fastforth;
-fastforth_push "destination"
-fastforth_posix_array_write "source" "$(cat fastforth_test.fastforth)"
-fastforth_push "source"
-fastforth_push "yes"
+#fastforth_push "destination"
+#fastforth_posix_array_write "source" "$(cat fastforth_test.fastforth)"
+#fastforth_push "source"
+#fastforth_push "yes"
