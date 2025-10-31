@@ -8,7 +8,8 @@ fastforth(){
 #and that it is meant to be embedded into another file
 #https://github.com/memesmith0 https://thefastscrolls.neocities.org
 fastforth_core="$( cat << 'fastforth_core_end'
-fastforth_call(){ eval "$1";};
+fastforth_eval_string(){ eval "$1";};
+fastforth_call(){ fastforth_eval_string "\$( fastforth_posix_array_read \"fastforth_memory_fastforth_function_$1\")" ; } ;
 fastforth_print(){ printf '%s' "$1" | sed 's/.$//';};
 fastforth_memory_terminator="m";
 fastforth_posix_array_write(){ eval "fastforth_memory_$(printf '%s' "$1" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator=\"\$2 \"";};
@@ -41,7 +42,23 @@ fastforth_concatenate_a="";
 fastforth_concatneate_b="";
 };
 fastforth_string(){ fastforth_push "$(printf '%s' "$1" | awk 'function H(h){h=tolower(h);return index("0123456789abcdef",h)-1}{r="";for(i=1;i<=length;i+=2)r=r sprintf("%c",(H(substr($0,i,1))*16)+H(substr($0,i+1,1)));printf "%s",r}')";};
-fastforth_define(){ fastforth_define_name="$(fastforth_peek)";fastforth_drop;fastforth_define_definition="$(fastforth_peek)";fastforth_drop;fastforth_posix_array_write "$fastforth_define_name" "$fastforth_define_definition"; eval "fastforth_$(printf '%s' "$fastforth_define_name" | sed 's/.$//')""(){ fastforth_call \"\$( fastforth_posix_array_read \"$fastforth_define_name\")\" ;}"; fastforth_define_name="";fastforth_define_definition="";};
+
+
+fastforth_define(){ fastforth_define_name="$(fastforth_peek)";fastforth_drop;fastforth_define_definition="$(fastforth_peek)";fastforth_drop;fastforth_posix_array_write "fastforth_memory_fastforth_function_$fastforth_define_name" "$fastforth_define_definition"; eval "fastforth_$(printf '%s' "$fastforth_define_name" | sed 's/.$//')""(){ fastforth_call \"$fastforth_define_name\";};"; fastforth_define_name="";fastforth_define_definition="";};
+
+
+
+
+
+fastforth_return_stack_head="0";
+fastforth_return_push(){ fastforth_return_stack_head="$(( fastforth_return_stack_head + 1 ))"; fastforth_posix_array_write "fastforth_return_stack_$fastforth_return_stack_head" "$1";};
+fastforth_return_peek(){ fastforth_posix_array_read "fastforth_return_stack_$fastforth_return_stack_head";}; 
+fastforth_return_drop(){ fastforth_posix_array_write "fastforth_return_stack_$fastforth_return_stack_head" "";fastforth_return_stack_head=$(( fastforth_return_stack_head - 1));};
+fastforth_lisp_left_paren(){ fastforth_return_stack_push "$(fastforth_peek)"; fastforth_drop;};
+fastforth_lisp_right_paren(){ fastforth_call "$(fastforth_return_peek)"; fastforth_return_drop;};
+
+
+
 fastforth_header="$( cat << 'fastforth_header_end'
 #!/bin/env sh
 fastforth(){
