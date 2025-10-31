@@ -63,7 +63,7 @@ fastforth_compiler(){
     fastforth_compiler_data_b="$(printf "%s" "$fastforth_compiler_data_a" | awk  '{for(i=1;i<=NF;i++){modifier=((i>1 && $(i-1)=="string")?"":"fastforth_");printf "%s%s%s%s",(i==1?"":OFS),((i>1 && $(i-1)=="string")?"":modifier),$i,((i==NF)?OFS:"");prev=$i}print ""}'     )"; #name everything fastforth_ except string bullshit
     fastforth_compiler_data_a="$(printf "%s" "$fastforth_compiler_data_b" | awk '{for(i=1;i<=NF;i++){if(i>1 && $(i-1)=="fastforth_string"){system("printf \"%s\" \""$i"\" | od -An -tx1 | tr -d \" \\n\"; printf \" \"")}else{printf "%s ",$i}}print ""}' )"
     fastforth_compiler_data_b="$(printf "%s" "$fastforth_compiler_data_a" | awk '{output = "";for (i = 1; i <= NF; ++i) {if (i > 1) {if ($(i-1) == "string" || $(i-1) == "fastforth_string") {output = output " " $i;} else {output = output ";" $i;}} else {output = $i;}}print output;}')";
-    if [ "$fastforth_compiler_fastforth_core_flag" = "yes " ]; then fastforth_push "blue"; else
+    if [ "$fastforth_compiler_fastforth_core_flag" != "yes " ]; then fastforth_push "$fastforth_compiler_data_b"; else
     fastforth_push "$fastforth_header
 $fastforth_core
 $fastforth_core_end_string$fastforth_footer
@@ -77,6 +77,6 @@ fastforth_core_end
 if [ "$fastforth_core_evaluated" != "yes" ]; then fastforth_core_evaluated="yes"; eval "$fastforth_core";fi;
 }; fastforth;
 fastforth_push "$(cat fastforth_test.fastforth)"
-fastforth_push "no"
+fastforth_push "yes"
 fastforth_compiler
 
