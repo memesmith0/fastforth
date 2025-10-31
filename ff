@@ -16,7 +16,7 @@ fastforth_memory_terminator="m";readonly fastforth_memory_terminator;
 fastforth_posix_array_write(){ eval "fastforth_memory_$(printf '%s' "$1" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator=\"\$2 \"";}; readonly -f fastforth_posix_array_write;
 fastforth_posix_array_read(){ eval "printf '%s' \"\$fastforth_memory_$(printf '%s' "$1" | od -An -tx1 | tr -d ' \n')$fastforth_memory_terminator\"";}; readonly -f fastforth_posix_array_read;
 fastforth_stack_head="0";
-fastforth_push(){ fastforth_stack_head="$(( fastforth_stack_head + 1 ))"; fastforth_posix_array_write "fastforth_stack_$fastforth_fstack_head" "$1";}; readonly -f fastforth_push;
+fastforth_push(){ fastforth_stack_head="$(( fastforth_stack_head + 1 ))"; fastforth_posix_array_write "fastforth_stack_$fastforth_stack_head" "$1";}; readonly -f fastforth_push;
 fastforth_peek(){ fastforth_posix_array_read "fastforth_stack_$fastforth_stack_head";}; readonly -f fastforth_peek;
 fastforth_drop(){ fastforth_posix_array_write "fastforth_stack_$fastforth_stack_head" "";fastforth_stack_head=$(( fastforth_stack_head - 1));}; readonly -f fastforth_drop;
 fastforth_interactive_shell_command(){ eval "$(fastforth_peek)";fastforth_drop;}; readonly -f fastforth_interactive_shell_command;
